@@ -1,6 +1,15 @@
 <!-- markdownlint-disable MD007 MD034 -->
 # Changelog
 
+## [0.79.1](https://github.com/open-telemetry/opentelemetry-js-contrib/compare/auto-instrumentations-node-v0.79.0...auto-instrumentations-node-v0.79.1) (2026-07-31)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @opentelemetry/instrumentation-tedious bumped from ^0.40.0 to ^0.41.0
+
 ## [0.79.0](https://github.com/open-telemetry/opentelemetry-js-contrib/compare/auto-instrumentations-node-v0.78.0...auto-instrumentations-node-v0.79.0) (2026-07-23)
 
 
