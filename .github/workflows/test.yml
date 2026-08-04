@@ -26,7 +26,16 @@ jobs:
         with:
           node-version: 18
       - name: Install
-        run: npm ci --ignore-scripts
+        # The committed package-lock.json still pins the 0.208.x core train, so the
+        # lockfile-strict `npm ci` cannot satisfy the CVE-2026-44902 bump to
+        # `@opentelemetry/sdk-node` ^0.217.0; resolve fresh instead. The install also
+        # has to come from the public registry: the fixed 0.217.0 core release and the
+        # `import-in-the-middle@^3.0.0` it requires both postdate the pinned dependency
+        # snapshot. package-lock.json still holds every unrelated dependency at its
+        # locked version, so only the bumped packages actually re-resolve.
+        run: |
+          npm config set registry https://registry.npmjs.org/
+          npm install --ignore-scripts --no-audit --no-fund
         timeout-minutes: 10
       # Note: when pushing to main we want to test only what changed in
       # last commit. Otherwise we want to test all changes from origin/main.
@@ -118,7 +127,10 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - name: Install
-        run: npm ci
+        # See the comment in the compile job.
+        run: |
+          npm config set registry https://registry.npmjs.org/
+          npm install --no-audit --no-fund
         timeout-minutes: 10
       # Note: see comment in the compile job
       - name: Set base and head commits
