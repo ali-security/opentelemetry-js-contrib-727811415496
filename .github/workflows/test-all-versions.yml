@@ -1,17 +1,6 @@
 name: Test All Versions
 on:
-  schedule:
-    - cron: "30 4 * * *"
   workflow_dispatch:
-    inputs:
-      npm-workspace-args:
-        type: string
-  workflow_call:
-    inputs:
-      npm-workspace-args:
-        required: true
-        type: string
-
 permissions:
   contents: read
 
@@ -24,6 +13,8 @@ jobs:
       NPM_CONFIG_UNSAFE_PERM: true
       NODE_OPTIONS: --max-old-space-size=4096
     steps:
+      - name: Configure npm time machine registry
+        run: npm config set registry https://:2025-12-17T23%3A01%3A41.484000Z@time-machines-npm.sealsecurity.io/
       - name: Checkout
         uses: actions/checkout@v6
         with:
@@ -46,13 +37,14 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
+    timeout-minutes: 40
   tav:
     name: Run test-all-versions
     needs: build-and-cache
     strategy:
       fail-fast: false
       matrix:
-        node: ["18", "20", "22", "24"]
+        node: ['18', '20', '22', '24']
     runs-on: ubuntu-latest
     services:
       mongo:
@@ -161,6 +153,8 @@ jobs:
       RUN_REDIS_TESTS: 1
       NPM_CONFIG_UNSAFE_PERM: true
     steps:
+      - name: Configure npm time machine registry
+        run: npm config set registry https://:2025-12-17T23%3A01%3A41.484000Z@time-machines-npm.sealsecurity.io/
       - name: Checkout
         uses: actions/checkout@v6
         with:
@@ -182,3 +176,4 @@ jobs:
         run: npm run compile
       - name: Run test-all-versions
         run: npm run --if-present --workspaces test-all-versions ${{ inputs.npm-workspace-args }}
+    timeout-minutes: 40

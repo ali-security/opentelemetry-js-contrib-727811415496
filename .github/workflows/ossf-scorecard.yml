@@ -1,11 +1,6 @@
 name: OSSF Scorecard
 
 on:
-  push:
-    branches:
-      - main
-  schedule:
-    - cron: "31 18 * * 4" # once a week
   workflow_dispatch:
 
 permissions: read-all
@@ -19,6 +14,8 @@ jobs:
       # Needed for GitHub OIDC token if publish_results is true
       id-token: write
     steps:
+      - name: Configure npm time machine registry
+        run: npm config set registry https://:2025-12-17T23%3A01%3A41.484000Z@time-machines-npm.sealsecurity.io/
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false
@@ -32,7 +29,7 @@ jobs:
       # Upload the results as artifacts (optional). Commenting out will disable
       # uploads of run results in SARIF format to the repository Actions tab.
       # https://docs.github.com/en/actions/advanced-guides/storing-workflow-data-as-artifacts
-      - name: "Upload artifact"
+      - name: Upload artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: SARIF file
@@ -41,7 +38,8 @@ jobs:
 
       # Upload the results to GitHub's code scanning dashboard (optional).
       # Commenting out will disable upload of results to your repo's Code Scanning dashboard
-      - name: "Upload to code-scanning"
+      - name: Upload to code-scanning
         uses: github/codeql-action/upload-sarif@497990dfed22177a82ba1bbab381bc8f6d27058f # v3.31.6
         with:
           sarif_file: results.sarif
+    timeout-minutes: 40

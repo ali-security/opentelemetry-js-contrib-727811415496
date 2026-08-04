@@ -1,12 +1,7 @@
 name: Lint PR
 
 on:
-  pull_request_target:
-    types:
-      - opened
-      - edited
-      - synchronize
-
+  workflow_dispatch:
 permissions:
   contents: read
 
@@ -15,6 +10,9 @@ jobs:
     name: Validate PR title
     runs-on: ubuntu-latest
     steps:
+      - name: Configure npm time machine registry
+        run: npm config set registry https://:2025-12-17T23%3A01%3A41.484000Z@time-machines-npm.sealsecurity.io/
       - uses: amannn/action-semantic-pull-request@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    timeout-minutes: 40

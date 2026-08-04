@@ -1,8 +1,7 @@
 name: Survey on Merged PR by Non-Member
 
 on:
-  pull_request_target:
-    types: [closed]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -17,6 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true
     steps:
+      - name: Configure npm time machine registry
+        run: npm config set registry https://:2025-12-17T23%3A01%3A41.484000Z@time-machines-npm.sealsecurity.io/
       - uses: actions/create-github-app-token@7e473efe3cb98aa54f8d4bac15400b15fad77d94 # v2.2.0
         id: otelbot-token
         with:
@@ -28,21 +29,22 @@ jobs:
           USERNAME="${{ github.event.pull_request.user.login }}"
           USER_TYPE="${{ github.event.pull_request.user.type }}"
           ORG="${{ github.repository_owner }}"
-          
+
           # Skip if user is a bot
           if [[ "$USER_TYPE" == "Bot" ]]; then
             echo "Skipping survey for bot user: $USERNAME"
             exit 0
           fi
-          
+
           # Skip if user is an org member
           if gh api "orgs/$ORG/members/$USERNAME" --silent; then
             echo "Skipping survey for org member: $USERNAME"
             exit 0
           fi
-          
+
           # Add survey comment for external contributor
           echo "Adding survey comment for external contributor: $USERNAME"
           gh pr comment ${PR_NUM} --repo ${{ github.repository }} --body "Thank you for your contribution @${USERNAME}! 🎉 We would like to hear from you about your experience contributing to OpenTelemetry by taking a few minutes to fill out this [survey](${SURVEY_URL})."
         env:
           GH_TOKEN: ${{ steps.otelbot-token.outputs.token }}
+    timeout-minutes: 40

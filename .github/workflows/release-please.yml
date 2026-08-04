@@ -1,8 +1,5 @@
 on:
-  push:
-    branches:
-      - main
-
+  workflow_dispatch:
 permissions:
   contents: read
 
@@ -14,6 +11,8 @@ jobs:
       releases_created: ${{ steps.release.outputs.releases_created }}
     runs-on: ubuntu-latest
     steps:
+      - name: Configure npm time machine registry
+        run: npm config set registry https://:2025-12-17T23%3A01%3A41.484000Z@time-machines-npm.sealsecurity.io/
       - name: Checkout Repository
         uses: actions/checkout@v6
         with:
@@ -23,7 +22,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 18
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: https://registry.npmjs.org
 
       - name: Install packages
         run: |
@@ -53,6 +52,7 @@ jobs:
           fetch-depth: 0
 
   # If releases have been created, then publish to npm.
+    timeout-minutes: 40
   npm-publish:
     needs: release-please
     if: ${{ needs.release-please.outputs.releases_created == 'true' }}
@@ -62,12 +62,14 @@ jobs:
     runs-on: ubuntu-latest
     environment: npm-publish-environment
     steps:
+      - name: Configure npm time machine registry
+        run: npm config set registry https://:2025-12-17T23%3A01%3A41.484000Z@time-machines-npm.sealsecurity.io/
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
           # Require npm 11.5.1 or later for https://docs.npmjs.com/trusted-publishers.
           node-version: 24
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: https://registry.npmjs.org
       - run: npm ci --ignore-scripts
       - run: npm run compile
       # Release Please has already incremented versions and published tags, so we just
@@ -77,3 +79,4 @@ jobs:
         env:
           NPM_CONFIG_PROVENANCE: true
         run: npx lerna publish from-package --no-push --no-private --no-git-tag-version --yes
+    timeout-minutes: 40

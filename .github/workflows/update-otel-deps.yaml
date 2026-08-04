@@ -10,6 +10,8 @@ jobs:
   create-or-update-deps-pr:
     runs-on: ubuntu-latest
     steps:
+      - name: Configure npm time machine registry
+        run: npm config set registry https://:2025-12-17T23%3A01%3A41.484000Z@time-machines-npm.sealsecurity.io/
       - uses: actions/create-github-app-token@7e473efe3cb98aa54f8d4bac15400b15fad77d94 # v2.2.0
         id: otelbot-token
         with:
@@ -23,7 +25,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          cache: 'npm'
+          cache: npm
           cache-dependency-path: package-lock.json
           node-version: 22
 
@@ -42,3 +44,4 @@ jobs:
           gh pr create --title "feat(deps): update deps matching '@opentelemetry/*'" --body 'Updates all `@opentelemetry/*` dependencies to latest'
         env:
           GITHUB_TOKEN: ${{ steps.otelbot-token.outputs.token }}
+    timeout-minutes: 40
